@@ -24,9 +24,6 @@ spring:
       test-while-idle: true
       test-on-borrow: false
       test-on-return: false
-  profiles:
-    active: dev
-
 
 redis:
   host: 192.168.1.3
@@ -49,4 +46,3 @@ mybatis:
   #驼峰映射
   configuration:
     mapUnderscoreToCamelCase: true
-

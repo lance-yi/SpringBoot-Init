@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 日志配置 参考：https://springframework.guru/using-logback-spring-boot/ -->
+<configuration>
+
+    <!-- 引用spring boot 默认配置，主要是用默认的控制台输出配置-->
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <!-- 读取spring属性 -->
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+
+    <!-- 每天产生一个日志文件，超过大小自动分割 -->
+    <appender name="all_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+            <FileNamePattern>/logs/${appName}/all-info-%d{yyyy-MM-dd}-%i.log</FileNamePattern>
+            <MaxHistory>30</MaxHistory>
+
+            <!-- 按时间回滚的同时，按文件大小来回滚 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-4L--- [%15.15t] %-50.50logger : %msg%n</pattern>
+        </encoder>
+
+    </appender>
+
+    <appender name="all_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>/logs/${appName}/error-%d{yyyy-MM-dd}-%i.log</FileNamePattern>
+            <!--日志文件保留天数-->
+            <MaxHistory>30</MaxHistory>
+            <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>100MB</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-4L--- [%15.15t] %-50.50logger : %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="all_info"/>
+            <appender-ref ref="all_error"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="test">
+        <root level="INFO">
+            <appender-ref ref="all_info"/>
+            <appender-ref ref="all_error"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="all_info"/>
+            <appender-ref ref="all_error"/>
+        </root>
+    </springProfile>
+
+
+</configuration>
+
